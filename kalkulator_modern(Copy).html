@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="id" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZNE - Dark/Light Mode</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Custom smooth transition for theme switching */
+        body {
+            font-family: 'Inter', sans-serif;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        .calc-btn {
+            transition: transform 0.1s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+        }
+        .calc-btn:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body class="bg-slate-100 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen flex flex-col justify-between items-center p-4">
+
+    <!-- Header / Navbar -->
+    <header class="w-full max-w-md flex justify-between items-center py-4 px-2">
+        <div class="flex items-center space-x-2">
+            <div class="bg-indigo-600 text-white p-2 rounded-xl shadow-md">
+                <i class="fa-solid fa-calculator text-lg"></i>
+            </div>
+            <h1 class="font-bold text-lg tracking-tight">ZNE<span class="text-indigo-600 dark:text-indigo-400">KALKULATOR</span></h1>
+        </div>
+        
+        <!-- Theme Toggle Button -->
+        <button id="themeToggle" class="relative inline-flex items-center h-9 w-16 rounded-full bg-slate-300 dark:bg-slate-700 transition-colors duration-300 focus:outline-none shadow-inner p-1 cursor-pointer" aria-label="Toggle Theme">
+            <span id="themeToggleCircle" class="flex items-center justify-center h-7 w-7 rounded-full bg-white dark:bg-slate-900 text-slate-700 dark:text-yellow-400 shadow-md transform transition-transform duration-300 translate-x-0 dark:translate-x-7">
+                <i id="themeIcon" class="fa-solid fa-sun text-xs"></i>
+            </span>
+        </button>
+    </header>
+
+    <!-- Main Calculator Container -->
+    <main class="w-full max-w-sm bg-white dark:bg-slate-800 rounded-3xl shadow-2xl p-6 border border-slate-200/80 dark:border-slate-700/80 my-auto">
+        <!-- Display Screen -->
+        <div class="bg-slate-50 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-700/60 rounded-2xl p-4 mb-6 text-right shadow-inner overflow-hidden">
+            <div id="history" class="text-xs text-slate-400 dark:text-slate-500 font-medium h-5 tracking-wide overflow-x-auto whitespace-nowrap"></div>
+            <div id="display" class="text-3xl sm:text-4xl font-bold tracking-tight text-slate-800 dark:text-slate-100 truncate mt-1">0</div>
+        </div>
+
+        <!-- Keypad Grid -->
+        <div class="grid grid-cols-4 gap-3">
+            <!-- Row 1: Clear & Operators -->
+            <button onclick="clearCalculator()" class="calc-btn col-span-2 bg-rose-50 dark:bg-rose-950/40 text-rose-600 dark:text-rose-400 font-semibold py-4 rounded-2xl border border-rose-100 dark:border-rose-900/50 hover:bg-rose-100 dark:hover:bg-rose-900/60 shadow-sm flex items-center justify-center space-x-2">
+                <i class="fa-solid fa-rotate-left text-sm"></i>
+                <span>AC</span>
+            </button>
+            <button onclick="deleteDigit()" class="calc-btn bg-slate-100 dark:bg-slate-700/60 text-slate-600 dark:text-slate-300 font-semibold py-4 rounded-2xl hover:bg-slate-200 dark:hover:bg-slate-700 shadow-sm flex items-center justify-center">
+                <i class="fa-solid fa-delete-left"></i>
+            </button>
+            <button onclick="appendOperator('/')" class="calc-btn operator-btn bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 font-semibold py-4 rounded-2xl border border-indigo-100 dark:border-indigo-900/50 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 shadow-sm">
+                <i class="fa-solid fa-divide"></i>
+            </button>
+
+            <!-- Row 2: Numbers 7, 8, 9 & Multiply -->
+            <button onclick="appendNumber('7')" class="calc-btn number-btn bg-slate-50 dark:bg-slate-700/30 text-slate-700 dark:text-slate-200 font-semibold py-4 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-700/60 shadow-sm">7</button>
+            <button onclick="appendNumber('8')" class="calc-btn number-btn bg-slate-50 dark:bg-slate-700/30 text-slate-700 dark:text-slate-200 font-semibold py-4 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-700/60 shadow-sm">8</button>
+            <button onclick="appendNumber('9')" class="calc-btn number-btn bg-slate-50 dark:bg-slate-700/30 text-slate-700 dark:text-slate-200 font-semibold py-4 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-700/60 shadow-sm">9</button>
+            <button onclick="appendOperator('*')" class="calc-btn operator-btn bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 font-semibold py-4 rounded-2xl border border-indigo-100 dark:border-indigo-900/50 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 shadow-sm">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <!-- Row 3: Numbers 4, 5, 6 & Minus -->
+            <button onclick="appendNumber('4')" class="calc-btn number-btn bg-slate-50 dark:bg-slate-700/30 text-slate-700 dark:text-slate-200 font-semibold py-4 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-700/60 shadow-sm">4</button>
+            <button onclick="appendNumber('5')" class="calc-btn number-btn bg-slate-50 dark:bg-slate-700/30 text-slate-700 dark:text-slate-200 font-semibold py-4 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-700/60 shadow-sm">5</button>
+            <button onclick="appendNumber('6')" class="calc-btn number-btn bg-slate-50 dark:bg-slate-700/30 text-slate-700 dark:text-slate-200 font-semibold py-4 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-700/60 shadow-sm">6</button>
+            <button onclick="appendOperator('-')" class="calc-btn operator-btn bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 font-semibold py-4 rounded-2xl border border-indigo-100 dark:border-indigo-900/50 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 shadow-sm">
+                <i class="fa-solid fa-minus"></i>
+            </button>
+
+            <!-- Row 4: Numbers 1, 2, 3 & Plus -->
+            <button onclick="appendNumber('1')" class="calc-btn number-btn bg-slate-50 dark:bg-slate-700/30 text-slate-700 dark:text-slate-200 font-semibold py-4 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-700/60 shadow-sm">1</button>
+            <button onclick="appendNumber('2')" class="calc-btn number-btn bg-slate-50 dark:bg-slate-700/30 text-slate-700 dark:text-slate-200 font-semibold py-4 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-700/60 shadow-sm">2</button>
+            <button onclick="appendNumber('3')" class="calc-btn number-btn bg-slate-50 dark:bg-slate-700/30 text-slate-700 dark:text-slate-200 font-semibold py-4 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-700/60 shadow-sm">3</button>
+            <button onclick="appendOperator('+')" class="calc-btn operator-btn bg-indigo-50 dark:bg-indigo-950/40 text-indigo-600 dark:text-indigo-400 font-semibold py-4 rounded-2xl border border-indigo-100 dark:border-indigo-900/50 hover:bg-indigo-100 dark:hover:bg-indigo-900/60 shadow-sm">
+                <i class="fa-solid fa-plus"></i>
+            </button>
+
+            <!-- Row 5: Zero, Dot & Equals -->
+            <button onclick="appendNumber('0')" class="calc-btn number-btn col-span-2 bg-slate-50 dark:bg-slate-700/30 text-slate-700 dark:text-slate-200 font-semibold py-4 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-700/60 shadow-sm">0</button>
+            <button onclick="appendDot()" class="calc-btn number-btn bg-slate-50 dark:bg-slate-700/30 text-slate-700 dark:text-slate-200 font-semibold py-4 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-700/60 shadow-sm">.</button>
+            <button onclick="calculateResult()" class="calc-btn bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-4 rounded-2xl shadow-lg shadow-indigo-500/30 flex items-center justify-center">
+                <i class="fa-solid fa-equals"></i>
+            </button>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full text-center text-xs text-slate-400 dark:text-slate-500 py-2">
+        Kalkulator Sederhana &bull; Dibuat dengan Tailwind CSS & JavaScript
+    </footer>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Theme Toggle Logic
+        const htmlElement = document.documentElement;
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+
+        // Check for saved user preference or system preference
+        const currentTheme = localStorage.getItem('theme') || 'light';
+        if (currentTheme === 'dark') {
+            htmlElement.classList.add('dark');
+            themeIcon.classList.remove('fa-sun');
+            themeIcon.classList.add('fa-moon');
+        }
+
+        themeToggle.addEventListener('click', () => {
+            if (htmlElement.classList.contains('dark')) {
+                htmlElement.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+                themeIcon.classList.remove('fa-moon');
+                themeIcon.classList.add('fa-sun');
+            } else {
+                htmlElement.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+                themeIcon.classList.remove('fa-sun');
+                themeIcon.classList.add('fa-moon');
+            }
+        });
+
+        // Calculator Logic
+        let currentInput = '0';
+        let previousInput = '';
+        let operator = null;
+        let resetScreen = false;
+
+        const display = document.getElementById('display');
+        const historyDisplay = document.getElementById('history');
+
+        function updateDisplay() {
+            display.textContent = currentInput;
+            if (operator !== null) {
+                historyDisplay.textContent = `${previousInput} ${formatOperator(operator)}`;
+            } else {
+                historyDisplay.textContent = '';
+            }
+        }
+
+        function formatOperator(op) {
+            if (op === '*') return '×';
+            if (op === '/') return '÷';
+            return op;
+        }
+
+        function appendNumber(number) {
+            if (currentInput === '0' || resetScreen) {
+                currentInput = number;
+                resetScreen = false;
+            } else {
+                currentInput += number;
+            }
+            updateDisplay();
+        }
+
+        function appendDot() {
+            if (resetScreen) {
+                currentInput = '0.';
+                resetScreen = false;
+                updateDisplay();
+                return;
+            }
+            if (!currentInput.includes('.')) {
+                currentInput += '.';
+                updateDisplay();
+            }
+        }
+
+        function appendOperator(op) {
+            if (operator !== null && !resetScreen) {
+                calculateResult();
+            }
+            previousInput = currentInput;
+            operator = op;
+            resetScreen = true;
+            updateDisplay();
+        }
+
+        function calculateResult() {
+            if (operator === null || resetScreen) return;
+            let computation;
+            const prev = parseFloat(previousInput);
+            const current = parseFloat(currentInput);
+
+            if (isNaN(prev) || isNaN(current)) return;
+
+            switch (operator) {
+                case '+':
+                    computation = prev + current;
+                    break;
+                case '-':
+                    computation = prev - current;
+                    break;
+                case '*':
+                    computation = prev * current;
+                    break;
+                case '/':
+                    if (current === 0) {
+                        showError("Tidak dapat membagi dengan nol");
+                        return;
+                    }
+                    computation = prev / current;
+                    break;
+                default:
+                    return;
+            }
+
+            // Handle float precision issues
+            currentInput = parseFloat(computation.toFixed(10)).toString();
+            historyDisplay.textContent = `${previousInput} ${formatOperator(operator)} ${currentInput} =`;
+            operator = null;
+            resetScreen = true;
+            display.textContent = currentInput;
+        }
+
+        function clearCalculator() {
+            currentInput = '0';
+            previousInput = '';
+            operator = null;
+            resetScreen = false;
+            updateDisplay();
+        }
+
+        function deleteDigit() {
+            if (resetScreen) return;
+            if (currentInput.length > 1) {
+                currentInput = currentInput.slice(0, -1);
+            } else {
+                currentInput = '0';
+            }
+            updateDisplay();
+        }
+
+        function showError(msg) {
+            currentInput = 'Error';
+            display.textContent = currentInput;
+            historyDisplay.textContent = msg;
+            setTimeout(() => {
+                clearCalculator();
+            }, 1500);
+        }
+
+        // Keyboard Support for Ease of Use
+        window.addEventListener('keydown', (e) => {
+            if ((e.key >= '0' && e.key <= '9')) {
+                appendNumber(e.key);
+            } else if (e.key === '.') {
+                appendDot();
+            } else if (e.key === '+' || e.key === '-' || e.key === '*' || e.key === '/') {
+                appendOperator(e.key);
+            } else if (e.key === 'Enter' || e.key === '=') {
+                e.preventDefault();
+                calculateResult();
+            } else if (e.key === 'Backspace') {
+                deleteDigit();
+            } else if (e.key === 'Escape') {
+                clearCalculator();
+            }
+        });
+    </script>
+</body>
+</html>
